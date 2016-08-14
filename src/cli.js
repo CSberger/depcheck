@@ -84,6 +84,7 @@ export default function cli(args, log, error, exit) {
       dev: true,
       'ignore-bin-package': false,
     })
+    .describe('ci', 'CI customization')
     .describe('dev', '[DEPRECATED] Check on devDependecies')
     .describe('ignore-bin-package', 'Ignore package with bin entry')
     .describe('json', 'Output results to JSON')
@@ -114,8 +115,8 @@ export default function cli(args, log, error, exit) {
       specials: getSpecials(opt.argv.specials),
     }))
     .then(result => print(result, log, opt.argv.json))
-    .then(({ dependencies: deps, devDependencies: devDeps }) =>
-      exit(opt.argv.json || deps.length === 0 && devDeps.length === 0 ? 0 : -1))
+    .then(({ dependencies: deps, devDependencies: devDeps, missing: missing }) =>
+      exit((opt.argv.ci && deps.length === 0 && Object.keys(missing).length === 0? 0 : -1) && (opt.argv.json || deps.length === 0 && devDeps.length === 0 ? 0 : -1)))
     .catch(errorMessage => {
       error(errorMessage);
       exit(-1);
